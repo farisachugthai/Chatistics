@@ -6,6 +6,7 @@ import argparse
 
 import pandas as pd
 from langdetect import *
+
 from lxml import etree
 
 from parsers import log
@@ -27,10 +28,10 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    fallbackDateParsing = False
+    fallback_date_parsing = False
     data = []
-    warnedNameChanges = []
-    nbInvalidSender = 0
+    warned_name_changes = []
+    nb_invalid_sender = 0
 
     # make sure we don't crash if chat logs contain exotic characters
     etree.set_default_parser(etree.XMLParser(encoding='utf-8', ns_clean=True, recover=True))
@@ -43,78 +44,78 @@ def main():
         document = os.path.join(args.file_path, filename)
         archive = etree.parse(document)
 
-        conversationId = filename.replace('.html', '')
-        groupConversation = False
+        conversation_id = filename.replace('.html', '')
+        group_conversation = False
         timestamp = ''
-        senderName = ''
-        conversationWithName = None
+        sender_name = ''
+        conversation_with_name = None
 
         for element in archive.iter():
             tag = element.tag
-            className = element.get('class')
+            class_name = element.get('class')
             content = element.text
 
             if tag == 'p':
                 text = content
 
-                if conversationWithName != '' and senderName != '':
+                if conversation_with_name != '' and sender_name != '':
 
                     # handles when the interlocutor's name changed at some point
-                    if (senderName != conversationWithName) and (senderName != args.own_name) and \
-                            (senderName not in warnedNameChanges) and (not groupConversation):
-                        if senderName not in warnedNameChanges:
-                            print('\t', 'Assuming', senderName, 'is', conversationWithName)
-                            warnedNameChanges.append(senderName)
+                    if (sender_name != conversation_with_name) and (sender_name != args.own_name) and \
+                            (sender_name not in warned_name_changes) and (not group_conversation):
+                        if sender_name not in warned_name_changes:
+                            print('\t', 'Assuming', sender_name, 'is', conversation_with_name)
+                            warned_name_changes.append(sender_name)
 
-                        senderName = conversationWithName
+                        sender_name = conversation_with_name
 
-                    data += [[timestamp, conversationId, conversationWithName, senderName, text]]
+                    data += [[timestamp, conversation_id, conversation_with_name, sender_name, text]]
 
                 else:
-                    nbInvalidSender = nbInvalidSender + 1
+                    nb_invalid_sender = nb_invalid_sender + 1
 
             elif tag == 'span':
-                if className == 'user':
-                    senderName = content
-                elif className == 'meta':
+                if class_name == 'user':
+                    sender_name = content
+                elif class_name == 'meta':
                     try:
-                        if not fallbackDateParsing:
+                        if not fallback_date_parsing:
                             timestamp = time.mktime(
                                 pd.to_datetime(content, format='%A, %B %d, %Y at %H:%M%p', exact=False).timetuple())
                         else:
                             timestamp = time.mktime(pd.to_datetime(content, infer_datetime_format=True).timetuple())
 
                     except ValueError:
-                        if not fallbackDateParsing:
+                        if not fallback_date_parsing:
                             print('Unexpected date format. '
                                   'Falling back to infer_datetime_format, parsing will be slower.')
                             timestamp = time.mktime(pd.to_datetime(content, infer_datetime_format=True).timetuple())
-                            fallbackDateParsing = True
+                            fallback_date_parsing = True
                         else:
                             raise
 
-            elif tag == 'div' and className == 'thread':
+            elif tag == 'div' and class_name == 'thread':
                 nbParticipants = str(element.xpath("text()")).count(', ') + 1
                 if nbParticipants > 1:
-                    groupConversation = True
+                    group_conversation = True
 
             elif tag == 'h3':
-                if conversationWithName is not None:
+                if conversation_with_name is not None:
                     print('Something is wrong. File format changed? (multiple conversation hearder in a single file)')
                     exit(0)
                 else:
                     content = content.replace('Conversation with ', '')
-                    conversationWithName = content
+                    conversation_with_name = content
 
-                print(conversationId, conversationWithName, "(group?", groupConversation, ")")
+                print(conversation_id, conversation_with_name, "(group?", group_conversation, ")")
 
             if len(data) >= args.max_exported_messages:
                 break
 
     print(len(data), 'messages parsed.')
 
-    if nbInvalidSender > 0:
-        print(nbInvalidSender, 'messages discarded because of bad ID.')
+    if nb_invalid_sender > 0:
+        print(nb_invalid_sender, 'messages discarded because of bad ID.')
 
     if len(data) < 1:
         print('Nothing to save.')
