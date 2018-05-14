@@ -2,7 +2,7 @@
 import argparse
 
 import pandas as pd
-from ggplot import *
+import ggplot
 
 from parsers import config
 
@@ -26,7 +26,7 @@ def parse_arguments():
     return args
 
 
-def load_data(data_paths, filter_conversation=None, filter_sender=None, remove_sender=None, top_n=10):
+def load_data(data_paths: object, filter_conversation: object = None, filter_sender: object = None, remove_sender: object = None, top_n: object = 10) -> object:
     # data loading
     df = pd.DataFrame()
     for dataPath in data_paths:
@@ -64,19 +64,19 @@ def load_data(data_paths, filter_conversation=None, filter_sender=None, remove_s
 
 def render(data, bin_width, plot_density=False):
     if plot_density:
-        plot = ggplot(data, aes(x='datetime', color='conversationWithName')) \
-               + geom_density() \
-               + scale_x_date(labels='%b %Y') \
-               + ggtitle('Conversation Densities') \
-               + ylab('Density') \
-               + xlab('Date')
+        plot = ggplot.ggplot(data, ggplot.aes(x='datetime', color='conversationWithName')) \
+               + ggplot.geom_density() \
+               + ggplot.scale_x_date(labels='%b %Y') \
+               + ggplot.ggtitle('Conversation Densities') \
+               + ggplot.ylab('Density') \
+               + ggplot.xlab('Date')
     else:
-        plot = ggplot(data, aes(x='datetime', fill='conversationWithName')) \
-               + geom_histogram(alpha=0.6, binwidth=bin_width) \
-               + scale_x_date(labels='%b %Y', breaks='6 months') \
-               + ggtitle('Message Breakdown') \
-               + ylab('Number of Messages') \
-               + xlab('Date')
+        plot = ggplot.ggplot(data, ggplot.aes(x='datetime', fill='conversationWithName')) \
+               + ggplot.geom_histogram(alpha=0.6, binwidth=bin_width) \
+               + ggplot.scale_x_date(labels='%b %Y', breaks='6 months') \
+               + ggplot.ggtitle('Message Breakdown') \
+               + ggplot.ylab('Number of Messages') \
+               + ggplot.xlab('Date')
 
     print(plot)
 
