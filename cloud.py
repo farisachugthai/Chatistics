@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
+import argparse
+import json
 import os
 import re
 import time
-import json
-import argparse
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import scipy
 from wordcloud import WordCloud, ImageColorGenerator
-from scipy.misc import imread
 
 
 def parse_arguments():
@@ -32,12 +32,7 @@ def parse_arguments():
     return args
 
 
-def main():
-    args = parse_arguments()
-    num_words = args.num_words
-    density = args.density
-    mask_img = args.mask_image
-
+def load_data(data_paths, filter_conversation=None, filter_sender=None, remove_sender=None, top_n=10):
     data_paths = args.data_paths
     stopwords_paths = args.stopwords_paths
     filter_conversation = args.filter_conversation
@@ -74,7 +69,7 @@ def main():
         print('No messages left! review your filter options')
         exit(0)
 
-    print('Final corpus:', len(df['text'])/1000, 'K messages')
+    print('Final corpus:', len(df['text']) / 1000, 'K messages')
 
     stopwords = []
     for stopwordsPath in stopwords_paths:
@@ -86,20 +81,24 @@ def main():
 
     # pre-compiled regex is faster than going through a list
     stopwords = '|'.join(stopwords)
-    regex = re.compile(r'\b('+stopwords+r')\b', re.UNICODE)
+    regex = re.compile(r'\b(' + stopwords + r')\b', re.UNICODE)
 
     print('Cleaning up...')
     text = df['text'] \
         .replace(to_replace='None', value=np.nan).dropna() \
         .str.lower() \
-        .apply(lambda w: re.sub(r'^https?:\/\/.*[\r\n]*', '', w)) \
+        .apply(lambda w: re.sub(r'^https?://.*[\r\n]*', '', w)) \
         .apply(lambda w: regex.sub('', w))
 
-    text = ' '.join(text)
+    text: str = ' '.join(text)
 
+    return text
+
+
+def render(text, mask_img, num_words, density):
     print('Rendering...')
     directory = os.path.dirname(__file__)
-    mask = imread(os.path.join(directory, mask_img))
+    mask = scipy.misc.imread(os.path.join(directory, mask_img))
 
     # https://amueller.github.io/word_cloud/generated/wordcloud.WordCloud.html#wordcloud.WordCloud
     wc = WordCloud(background_color="white", mask=mask,
@@ -111,9 +110,25 @@ def main():
     plt.imshow(wc)
     plt.axis("off")
 
-    path = 'renders/' + str(int(time.time()*1000)) + '.png'
+    path: str = 'renders/' + str(int(time.time() * 1000)) + '.png'
     print('Saving to %s...' % path)
     plt.savefig(path, dpi=density)
+
+
+def main():
+    args = parse_arguments()
+    num_words = args.num_words
+    density = args.density
+    mask_img = args.mask_image
+
+    text = load_data(
+        data_paths=args.data_paths,
+        filter_conversation=args.filter_conversation,
+        filter_sender=args.filter_sender,
+        remove_sender=args.remove_sender,
+    )
+
+    render(text, mask_img, num_words, density)
 
 
 if __name__ == '__main__':
