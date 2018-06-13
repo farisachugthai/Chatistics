@@ -1,10 +1,5 @@
 ggplot==0.11.5
-lxml==3.5.0
-# matplotlib==2.1.2         # ggplot depends on matplotlib conda cansolve the requirement
-# numpy==1.14.0             # pandas depends on numpy
+lxml==4.2.1
 pandas==0.17.1
-# scipy==0.18.1             # ggplot dependency
-# wordcloud==1.3.1 # wrong version for conda compatiblity
-# PIL==1.1                  # was PIL in py2? module is pillow now
-langdetect==1.0.7
-# Telethon==0.17              # Optional, Telegram only
+wordcloud==1.4.1
+Telethon==0.17              # Optional, Telegram only
