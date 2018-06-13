@@ -1,0 +1,18 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+
+ggplot=0.11.5=py35_2
+langdetect=1.0.7=py_0
+libxml2=2.9.8=h26e45fe_1
+libxslt=1.1.28=0
+lxml=3.5.0=py35_0
+matplotlib=1.4.3=np19py35_2
+numpy=1.9.3=py35hff6eb55_3
+pandas=0.17.1=np19py35_0
+pillow=4.2.1=py35_0
+pip=10.0.1=py35_0
+python=3.5.5=hc3d631a_4
+scipy=1.1.0=py35hfc37229_0
+tk=8.6.7=hc745277_3
+wordcloud=1.4.1=py35_0

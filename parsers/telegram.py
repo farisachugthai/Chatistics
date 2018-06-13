@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 
+# This should be a repo wide util. Having only used the messenger file I accidentally
+# realized this was here, but it's a useful exception handler!
 if sys.version_info < (3, 0):
     sys.stdout.write("Sorry, requires Python 3.\n")
     sys.exit(1)

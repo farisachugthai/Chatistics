@@ -11,12 +11,13 @@ MAX_EXPORTED_MESSAGES = 1000000
 
 
 # Google Hangouts
-DEFAULT_HANGOUTS_RAW_FILE = os.path.join(ROOT_DIR, 'raw/Hangouts.json')
+DEFAULT_HANGOUTS_RAW_FILE = os.path.join(ROOT_DIR, 'raw', 'Hangouts.json')
 
 
 # Facebook messenger
-DEFAULT_MESSENGER_RAW_FILE = os.path.join(ROOT_DIR, 'raw/messages')
-
+DEFAULT_MESSENGER_RAW_FILE = os.path.join(ROOT_DIR, 'raw', 'messages')
+DEFAULT_MESSENGER_DATA_DIR = os.path.join(ROOT_DIR, 'data')
+DEFAULT_MESSENGER_STOPWORDS = os.path.join(ROOT_DIR, 'stopwords')
 
 # Telegram
 TELEGRAM_API_ID = '<paste api_id here>'
